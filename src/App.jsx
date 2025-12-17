@@ -14,7 +14,7 @@ function App() {
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
   const [correctAnswered, setCorrectAnswered] = useState(false);
   const [loading, setLoading] = useState(false);
-
+ 
   // TIMES (via players)
   const [teams, setTeams] = useState([]);
   const [teamsLoaded, setTeamsLoaded] = useState(false);
@@ -174,7 +174,13 @@ function App() {
     const chosen = raffleCategories[randomIndex];
     loadQuestions(chosen);
   }
-
+  function changeScore(teamId, delta) {
+    setTeams((prev) =>
+      prev.map((t) =>
+        t.id === teamId ? { ...t, score: (t.score || 0) + delta } : t
+      )
+    );
+  }
   // ---------- TELAS ----------
 
   if (loading) {
@@ -338,30 +344,70 @@ function App() {
                   >
                     {team.members}
                   </p>
-                  {/* placar (por enquanto 0; depois ligamos no Supabase) */}
-                  <p style={{ fontWeight: "bold" }}>Pontos: {team.score}</p>
-                </div>
-              ))}
-            </div>
+                   {/* PLACAR */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              marginTop: "0.5rem",
+            }}
+          >
+            <span style={{ fontWeight: "bold" }}>
+              Pontos: {team.score ?? 0}
+            </span>
 
             <button
-              onClick={() => setPhase("categories")}
+              onClick={() => changeScore(team.id, -1)}
               style={{
-                marginTop: "2.5rem",
-                padding: "1rem 3rem",
-                fontSize: "1.2rem",
-                borderRadius: "12px",
-                background: "#22c55e",
-                color: "#fff",
+                padding: "0.2rem 0.6rem",
+                borderRadius: "999px",
                 border: "none",
-                fontWeight: "bold",
+                background: "#ef4444",
+                color: "#fff",
                 cursor: "pointer",
+                fontWeight: "bold",
               }}
             >
-              Ir para as categorias
+              -1
             </button>
-          </>
-        )}
+            <button
+              onClick={() => changeScore(team.id, 1)}
+              style={{
+                padding: "0.2rem 0.6rem",
+                borderRadius: "999px",
+                border: "none",
+                background: "#22c55e",
+                color: "#fff",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              +1
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <button
+      onClick={() => setPhase("categories")}
+      style={{
+        marginTop: "2.5rem",
+        padding: "1rem 3rem",
+        fontSize: "1.2rem",
+        borderRadius: "12px",
+        background: "#22c55e",
+        color: "#fff",
+        border: "none",
+        fontWeight: "bold",
+        cursor: "pointer",
+      }}
+    >
+      Ir para as categorias
+    </button>
+  </>
+)}
       </div>
     );
   }
