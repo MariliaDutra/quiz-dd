@@ -185,37 +185,61 @@ function App() {
 
   // REGRAS PRIMEIRO
   if (showRules) {
-    return (
+  return (
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "rgba(0,0,0,0.7)",
+        color: "white",
+        textAlign: "left",
+        padding: "2rem",
+      }}
+    >
       <div
         style={{
-          width: "100vw",
-          height: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          background: "rgba(0,0,0,0.6)",
-          color: "white",
-          textAlign: "center",
-          padding: "2rem",
+          background: "rgba(0,0,0,0.9)",
+          padding: "2.5rem 3rem",
+          borderRadius: "16px",
+          maxWidth: "800px",
         }}
       >
-        <div
-          style={{
-            background: "rgba(0,0,0,0.85)",
-            padding: "2.5rem 3rem",
-            borderRadius: "16px",
-            maxWidth: "700px",
-          }}
-        >
-          <h1 style={{ marginBottom: "1rem" }}>Regras do Jogo</h1>
+        <h1 style={{ marginBottom: "1rem", textAlign: "center" }}>
+          Regras do Jogo
+        </h1>
 
-          {/* mantém exatamente o seu <ul> de regras aqui */}
-          {/* ... */}
+        <ol style={{ marginTop: "1rem", lineHeight: 1.6 }}>
+          <li>A ordem dos participantes é definida por sorteio.</li>
+          <li>
+            Na sua vez, você pode pegar um presente novo da pilha{" "}
+            ou desafiar o presente de outra pessoa respondendo uma pergunta.
+          </li>
+          <li>
+            Se acertar a pergunta, fica com o presente escolhido.
+            Se errar, não ganha presente nessa rodada.
+          </li>
+          <li>
+            Presentes podem ser roubados várias vezes ao longo do jogo,
+            sempre por quem acerta a pergunta.
+          </li>
+          <li>
+            Se alguém soprar a resposta fora da sua vez, pode perder o presente
+            ou ir para o fim da fila (decidam antes como vão aplicar).
+          </li>
+          <li>
+            O jogo termina quando todos tiverem pelo menos um presente
+            ou quando acabarem os presentes da pilha.
+          </li>
+        </ol>
 
+        <div style={{ textAlign: "center" }}>
           <button
             onClick={() => {
               setShowRules(false);
-              setPhase("teams"); // ao sair das regras, ir para times
+              setPhase("teams");
             }}
             style={{
               marginTop: "2rem",
@@ -233,9 +257,9 @@ function App() {
           </button>
         </div>
       </div>
-    );
-  }
-
+    </div>
+  );
+}
   // TELA DE TIMES
  if (phase === "teams") {
   return (
