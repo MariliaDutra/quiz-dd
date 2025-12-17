@@ -26,36 +26,36 @@ function App() {
   // ---------- TIMES (usa tabela players) ----------
 
   async function loadTeams() {
-  setLoading(true);
+    setLoading(true);
 
-  const { data, error } = await supabase
-    .from("players")
-    .select("id, player, team_name")
-    .order("team_name");
+    const { data, error } = await supabase
+      .from("players")
+      .select("id, player, team_name")
+      .order("team_name");
 
-  if (error) {
-    console.error("Erro ao carregar jogadores:", error);
+    if (error) {
+      console.error("Erro ao carregar jogadores:", error);
+      setLoading(false);
+      return;
+    }
+
+    const map = {};
+    (data || []).forEach((row) => {
+      const team = row.team_name || "Sem time";
+      if (!map[team]) map[team] = [];
+      map[team].push(row.player);
+    });
+
+    const grouped = Object.entries(map).map(([teamName, members], index) => ({
+      id: index + 1,
+      name: teamName,
+      members: members.join("\n"),
+    }));
+
+    setTeams(grouped);
+    setTeamsLoaded(true);
     setLoading(false);
-    return;
   }
-
-  const map = {};
-  (data || []).forEach((row) => {
-    const team = row.team_name || "Sem time";
-    if (!map[team]) map[team] = [];
-    map[team].push(row.player);
-  });
-
-  const grouped = Object.entries(map).map(([teamName, members], index) => ({
-    id: index + 1,
-    name: teamName,
-    members: members.join("\n"),
-  }));
-
-  setTeams(grouped);
-  setTeamsLoaded(true);
-  setLoading(false);
-}
 
   // ---------- CATEGORIAS / PERGUNTAS ----------
 
@@ -173,6 +173,32 @@ function App() {
     loadQuestions(chosen);
   }
 
+  // ---------- BOTÃO GLOBAL DE PLACAR ----------
+
+  function ScoreButton() {
+    return (
+      <button
+        onClick={() => setPhase("teams")}
+        style={{
+          position: "fixed",
+          top: "1rem",
+          left: "1rem",
+          padding: "0.6rem 1.4rem",
+          borderRadius: "999px",
+          background: "#111827",
+          color: "#fff",
+          border: "none",
+          cursor: "pointer",
+          fontWeight: "bold",
+          fontSize: "0.9rem",
+          zIndex: 20,
+        }}
+      >
+        Ver placar
+      </button>
+    );
+  }
+
   // ---------- TELAS ----------
 
   if (loading) {
@@ -185,180 +211,183 @@ function App() {
 
   // REGRAS PRIMEIRO
   if (showRules) {
-  return (
-    <div
-      style={{
-        width: "100vw",
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "rgba(0,0,0,0.7)",
-        color: "white",
-        textAlign: "left",
-        padding: "2rem",
-      }}
-    >
+    return (
       <div
         style={{
-          background: "rgba(0,0,0,0.9)",
-          padding: "2.5rem 3rem",
-          borderRadius: "16px",
-          maxWidth: "800px",
+          width: "100vw",
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "rgba(0,0,0,0.7)",
+          color: "white",
+          textAlign: "left",
+          padding: "2rem",
         }}
       >
-        <h1 style={{ marginBottom: "1rem", textAlign: "center" }}>
-          Regras do Jogo
-        </h1>
+        <div
+          style={{
+            background: "rgba(0,0,0,0.9)",
+            padding: "2.5rem 3rem",
+            borderRadius: "16px",
+            maxWidth: "800px",
+          }}
+        >
+          <h1 style={{ marginBottom: "1rem", textAlign: "center" }}>
+            Regras do Jogo
+          </h1>
 
-        <ol style={{ marginTop: "1rem", lineHeight: 1.6 }}>
-          <li>A ordem dos participantes é definida por sorteio.</li>
-          <li>
-            Na sua vez, você pode pegar um presente novo da pilha{" "}
-            ou desafiar o presente de outra pessoa respondendo uma pergunta.
-          </li>
-          <li>
-            Se acertar a pergunta, fica com o presente escolhido.
-            Se errar, não ganha presente nessa rodada.
-          </li>
-          <li>
-            Presentes podem ser roubados várias vezes ao longo do jogo,
-            sempre por quem acerta a pergunta.
-          </li>
-          <li>
-            Se alguém soprar a resposta fora da sua vez, pode perder o presente
-            ou ir para o fim da fila (decidam antes como vão aplicar).
-          </li>
-          <li>
-            O jogo termina quando todos tiverem pelo menos um presente
-            ou quando acabarem os presentes da pilha.
-          </li>
-        </ol>
+          <ol style={{ marginTop: "1rem", lineHeight: 1.6 }}>
+            <li>A ordem dos participantes é definida por sorteio.</li>
+            <li>
+              Na sua vez, você pode pegar um presente novo da pilha ou desafiar
+              o presente de outra pessoa respondendo uma pergunta.
+            </li>
+            <li>
+              Se acertar a pergunta, fica com o presente escolhido. Se errar,
+              não ganha presente nessa rodada.
+            </li>
+            <li>
+              Presentes podem ser roubados várias vezes ao longo do jogo, sempre
+              por quem acerta a pergunta.
+            </li>
+            <li>
+              Se alguém soprar a resposta fora da sua vez, pode perder o
+              presente ou ir para o fim da fila.
+            </li>
+            <li>
+              O jogo termina quando todos tiverem pelo menos um presente ou
+              quando acabarem os presentes da pilha.
+            </li>
+          </ol>
 
-        <div style={{ textAlign: "center" }}>
-          <button
-            onClick={() => {
-              setShowRules(false);
-              setPhase("teams");
-            }}
-            style={{
-              marginTop: "2rem",
-              padding: "1rem 2.5rem",
-              fontSize: "1.1rem",
-              borderRadius: "999px",
-              background: "#dc2626",
-              color: "#fff",
-              border: "none",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
-            Começar o jogo
-          </button>
+          <div style={{ textAlign: "center" }}>
+            <button
+              onClick={() => {
+                setShowRules(false);
+                setPhase("teams");
+              }}
+              style={{
+                marginTop: "2rem",
+                padding: "1rem 2.5rem",
+                fontSize: "1.1rem",
+                borderRadius: "999px",
+                background: "#dc2626",
+                color: "#fff",
+                border: "none",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Começar o jogo
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-}
-  // TELA DE TIMES
- if (phase === "teams") {
-  return (
-    <div
-      style={{
-        width: "100vw",
-        minHeight: "100vh",
-        padding: "2rem",
-        color: "white",
-        textAlign: "center",
-      }}
-    >
-      <h1
+    );
+  }
+
+  // TELA DE TIMES (PLACAR)
+  if (phase === "teams") {
+    return (
+      <div
         style={{
-          fontSize: "3rem",
-          marginTop: "1rem",
-          padding: "0.5rem 1.5rem",
-          background: "rgba(0,0,0,0.6)",
-          borderRadius: "999px",
-          display: "inline-block",
+          width: "100vw",
+          minHeight: "100vh",
+          padding: "2rem",
+          color: "white",
+          textAlign: "center",
         }}
       >
-        Formação dos Times
-      </h1>
+        <h1
+          style={{
+            fontSize: "3rem",
+            marginTop: "1rem",
+            padding: "0.5rem 1.5rem",
+            background: "rgba(0,0,0,0.6)",
+            borderRadius: "999px",
+            display: "inline-block",
+          }}
+        >
+          Formação dos Times
+        </h1>
 
-      {!teamsLoaded && (
-        <div style={{ marginTop: "2rem" }}>
-          <button
-            onClick={loadTeams}
-            style={{
-              padding: "1.5rem 4rem",
-              fontSize: "1.8rem",
-              borderRadius: "999px",
-              background: "#dc2626",
-              color: "#fff",
-              border: "none",
-              fontWeight: "bold",
-              cursor: "pointer",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
-            }}
-          >
-            Sortear times
-          </button>
-        </div>
-      )}
-
-      {teamsLoaded && (
-        <>
-          <div
-            style={{
-              marginTop: "2rem",
-              display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
-              gap: "1.5rem",
-            }}
-          >
-            {teams.map((team) => (
-              <div
-                key={team.id}
-                style={{
-                  background: "rgba(0,0,0,0.7)",
-                  padding: "1rem",
-                  borderRadius: "12px",
-                  textAlign: "left",
-                }}
-              >
-                <h2 style={{ marginBottom: "0.5rem" }}>{team.name}</h2>
-                <p style={{ whiteSpace: "pre-line" }}>{team.members}</p>
-              </div>
-            ))}
+        {!teamsLoaded && (
+          <div style={{ marginTop: "2rem" }}>
+            <button
+              onClick={loadTeams}
+              style={{
+                padding: "1.5rem 4rem",
+                fontSize: "1.8rem",
+                borderRadius: "999px",
+                background: "#dc2626",
+                color: "#fff",
+                border: "none",
+                fontWeight: "bold",
+                cursor: "pointer",
+                boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
+              }}
+            >
+              Sortear times
+            </button>
           </div>
+        )}
 
-          <button
-            onClick={() => setPhase("categories")}
-            style={{
-              marginTop: "2.5rem",
-              padding: "1rem 3rem",
-              fontSize: "1.2rem",
-              borderRadius: "12px",
-              background: "#22c55e",
-              color: "#fff",
-              border: "none",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
-            Ir para as categorias
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
+        {teamsLoaded && (
+          <>
+            <div
+              style={{
+                marginTop: "2rem",
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: "1.5rem",
+              }}
+            >
+              {teams.map((team) => (
+                <div
+                  key={team.id}
+                  style={{
+                    background: "rgba(0,0,0,0.7)",
+                    padding: "1rem",
+                    borderRadius: "12px",
+                    textAlign: "left",
+                  }}
+                >
+                  <h2 style={{ marginBottom: "0.5rem" }}>{team.name}</h2>
+                  <p style={{ whiteSpace: "pre-line" }}>{team.members}</p>
+                  {/* depois aqui entram os pontos */}
+                </div>
+              ))}
+            </div>
 
+            <button
+              onClick={() => setPhase("categories")}
+              style={{
+                marginTop: "2.5rem",
+                padding: "1rem 3rem",
+                fontSize: "1.2rem",
+                borderRadius: "12px",
+                background: "#22c55e",
+                color: "#fff",
+                border: "none",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Ir para as categorias
+            </button>
+          </>
+        )}
+      </div>
+    );
+  }
 
   // CATEGORIAS
   if (phase === "categories") {
     return (
       <>
+        <ScoreButton />
+
         <div
           style={{
             display: "flex",
@@ -434,6 +463,8 @@ function App() {
   if (phase === "numbers") {
     return (
       <div>
+        <ScoreButton />
+
         <h1>{currentCategory}</h1>
         <button onClick={() => setPhase("categories")}>
           Voltar para Categorias
@@ -468,6 +499,8 @@ function App() {
   if (phase === "question" && currentQuestion) {
     return (
       <div>
+        <ScoreButton />
+
         <h2>Pergunta {currentQuestion.question_number}</h2>
         <button onClick={() => setPhase("numbers")}>
           Voltar para Números
@@ -524,7 +557,11 @@ function App() {
             !showCorrectAnswer && (
               <button
                 onClick={() => setShowCorrectAnswer(true)}
-                style={{ marginTop: "2rem", background: "#fbbf24", color: "#000" }}
+                style={{
+                  marginTop: "2rem",
+                  background: "#fbbf24",
+                  color: "#000",
+                }}
               >
                 Mostrar Resposta
               </button>
