@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
 function App() {
-  const [phase, setPhase] = useState("categories");
+  const [phase, setPhase] = useState("teams"); // começa na tela de times
   const [showRules, setShowRules] = useState(true);
   const [categories, setCategories] = useState([]);
   const [raffleCategories, setRaffleCategories] = useState([]);
@@ -14,13 +14,38 @@ function App() {
   const [correctAnswered, setCorrectAnswered] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // NOVO: times
+  const [teams, setTeams] = useState([]);
+  const [teamsLoaded, setTeamsLoaded] = useState(false);
+
   useEffect(() => {
     loadCategories();
   }, []);
 
-  async function loadCategories() {
+  // ---------- TIMES ----------
+
+  async function loadTeams() {
     setLoading(true);
 
+    const { data, error } = await supabase
+      .from("teams_dd") // <-- nome da tabela de times
+      .select("id, name, members")
+      .order("id");
+
+    if (error) {
+      console.error("Erro ao carregar times:", error);
+      setLoading(false);
+      return;
+    }
+
+    setTeams(data || []);
+    setTeamsLoaded(true);
+    setLoading(false);
+  }
+
+  // ---------- CATEGORIAS / PERGUNTAS ----------
+
+  async function loadCategories() {
     const { data, error } = await supabase
       .from("questions_dd")
       .select("theme")
@@ -28,7 +53,6 @@ function App() {
 
     if (error) {
       console.error("Erro ao carregar categorias:", error);
-      setLoading(false);
       return;
     }
 
@@ -44,8 +68,6 @@ function App() {
       const raffle = ordered.filter((c) => c && c !== kidsLabel);
       setRaffleCategories(raffle);
     }
-
-    setLoading(false);
   }
 
   async function loadQuestions(theme) {
@@ -137,7 +159,8 @@ function App() {
     loadQuestions(chosen);
   }
 
-  // LOADING
+  // ---------- TELAS ----------
+
   if (loading) {
     return (
       <div>
@@ -146,7 +169,7 @@ function App() {
     );
   }
 
-  // TELA DE REGRAS (só enquanto showRules === true)
+  // TELA DE REGRAS (fica antes de tudo)
   if (showRules) {
     return (
       <div
@@ -171,63 +194,7 @@ function App() {
           }}
         >
           <h1 style={{ marginBottom: "1rem" }}>Regras do Jogo</h1>
-         <ul
-  style={{
-    textAlign: "left",
-    marginTop: "1rem",
-    lineHeight: 1.5,
-    fontSize: "1rem",
-  }}
->
-  <li>
-    A ordem dos participantes é definida por sorteio no início do jogo.
-  </li>
-
-  <li>
-    Cada rodada começa com a escolha de uma categoria, por sorteio ou pelos
-    botões do painel.
-  </li>
-
-  <li>
-    Quem está na vez responde à pergunta da rodada; se acertar, conquista um
-    presente (novo da pilha ou “roubado” de alguém).
-  </li>
-
-  <li>O presente deve ser aberto na hora para todo mundo ver o que está em jogo.</li>
-
-  <li>
-    Um mesmo presente pode ser desafiado e trocado quantas vezes for necessário
-    ao longo do jogo.
-  </li>
-
-  <li>
-    Na sua vez, você pode escolher:
-    <ul style={{ marginLeft: "1.5rem", marginTop: "0.25rem" }}>
-      <li>Pegar um presente novo da pilha, ou</li>
-      <li>Desafiar o presente de outra pessoa, respondendo uma pergunta.</li>
-    </ul>
-  </li>
-
-  <li>
-    Se você desafiar o presente de alguém e acertar, fica com aquele presente;
-    se errar, não ganha presente na rodada.
-  </li>
-
-  <li>
-    Caso não seja a sua vez e você sopre a resposta:
-    <ul style={{ marginLeft: "1.5rem", marginTop: "0.25rem" }}>
-      <li>Se já tiver presente, perde o presente.</li>
-      <li>Se não tiver presente, vai para o fim da fila.</li>
-    </ul>
-  </li>
-
-  <li>Se ninguém acertar a pergunta de uma rodada, nenhum presente é entregue.</li>
-
-  <li>
-    O jogo termina quando todos tiverem pelo menos um presente ou quando
-    acabarem os presentes da pilha.
-  </li>
-</ul>
+          {/* ... mantém o seu <ul> de regras aqui igual estava ... */}
           <button
             onClick={() => setShowRules(false)}
             style={{
@@ -245,6 +212,85 @@ function App() {
             Começar o jogo
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // NOVA TELA: TIMES
+  if (phase === "teams") {
+    return (
+      <div
+        style={{
+          width: "100vw",
+          minHeight: "100vh",
+          padding: "2rem",
+          color: "white",
+          textAlign: "center",
+        }}
+      >
+        <h1>Formação dos Times</h1>
+
+        {!teamsLoaded ? (
+          <button
+            onClick={loadTeams}
+            style={{
+              marginTop: "2rem",
+              padding: "1rem 3rem",
+              fontSize: "1.2rem",
+              borderRadius: "12px",
+              background: "#dc2626",
+              color: "#fff",
+              border: "none",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            Sortear times
+          </button>
+        ) : (
+          <>
+            <div
+              style={{
+                marginTop: "2rem",
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: "1.5rem",
+              }}
+            >
+              {teams.map((team) => (
+                <div
+                  key={team.id}
+                  style={{
+                    background: "rgba(0,0,0,0.7)",
+                    padding: "1rem",
+                    borderRadius: "12px",
+                    textAlign: "left",
+                  }}
+                >
+                  <h2 style={{ marginBottom: "0.5rem" }}>{team.name}</h2>
+                  <p style={{ whiteSpace: "pre-line" }}>{team.members}</p>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setPhase("categories")}
+              style={{
+                marginTop: "2.5rem",
+                padding: "1rem 3rem",
+                fontSize: "1.2rem",
+                borderRadius: "12px",
+                background: "#22c55e",
+                color: "#fff",
+                border: "none",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Ir para as categorias
+            </button>
+          </>
+        )}
       </div>
     );
   }
