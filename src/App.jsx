@@ -26,37 +26,36 @@ function App() {
   // ---------- TIMES (usa tabela players) ----------
 
   async function loadTeams() {
-    setLoading(true);
+  setLoading(true);
 
-    const { data, error } = await supabase
-      .from("players") // nome da tabela com player, team_name
-      .select("id, player, team_name")
-      .order("team_name");
+  const { data, error } = await supabase
+    .from("players")
+    .select("id, player, team_name")
+    .order("team_name");
 
-    if (error) {
-      console.error("Erro ao carregar jogadores:", error);
-      setLoading(false);
-      return;
-    }
-
-    // Agrupa por team_name
-    const map = {};
-    (data || []).forEach((row) => {
-      const team = row.team_name || "Sem time";
-      if (!map[team]) map[team] = [];
-      map[team].push(row.player);
-    });
-
-    const grouped = Object.entries(map).map(([teamName, members], index) => ({
-      id: index + 1,
-      name: teamName,
-      members: members.join("\n"),
-    }));
-
-    setTeams(grouped);
-    setTeamsLoaded(true);
+  if (error) {
+    console.error("Erro ao carregar jogadores:", error);
     setLoading(false);
+    return;
   }
+
+  const map = {};
+  (data || []).forEach((row) => {
+    const team = row.team_name || "Sem time";
+    if (!map[team]) map[team] = [];
+    map[team].push(row.player);
+  });
+
+  const grouped = Object.entries(map).map(([teamName, members], index) => ({
+    id: index + 1,
+    name: teamName,
+    members: members.join("\n"),
+  }));
+
+  setTeams(grouped);
+  setTeamsLoaded(true);
+  setLoading(false);
+}
 
   // ---------- CATEGORIAS / PERGUNTAS ----------
 
