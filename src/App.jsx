@@ -237,36 +237,48 @@ function App() {
   }
 
   // TELA DE TIMES
-  if (phase === "teams") {
-    return (
-      <div
+ if (phase === "teams") {
+  return (
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        color: "white",
+        textAlign: "center",
+      }}
+    >
+      <h1
         style={{
-          width: "100vw",
-          minHeight: "100vh",
-          padding: "2rem",
-          color: "white",
-          textAlign: "center",
+          fontSize: "3rem",
+          marginBottom: "2rem",
+          padding: "0.5rem 1.5rem",
+          background: "rgba(0,0,0,0.6)",
+          borderRadius: "999px",
         }}
       >
-        <h1>Formação dos Times</h1>
+        Formação dos Times
+      </h1>
 
-        {!teamsLoaded ? (
-          <button
-            onClick={loadTeams}
-            style={{
-              marginTop: "2rem",
-              padding: "1rem 3rem",
-              fontSize: "1.2rem",
-              borderRadius: "12px",
-              background: "#dc2626",
-              color: "#fff",
-              border: "none",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
-            Sortear times
-          </button>
+      <button
+        onClick={loadTeams}
+        style={{
+          padding: "1.5rem 4rem",
+          fontSize: "1.8rem",
+          borderRadius: "999px",
+          background: "#dc2626",
+          color: "#fff",
+          border: "none",
+          fontWeight: "bold",
+          cursor: "pointer",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
+        }}
+      >
+        Sortear times
+      </button>
         ) : (
           <>
             <div
