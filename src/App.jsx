@@ -22,7 +22,7 @@ function App() {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("questions")
+      .from("questions_dd")
       .select("theme")
       .order("theme");
 
@@ -51,7 +51,7 @@ function App() {
   async function loadQuestions(theme) {
     setLoading(true);
     const { data, error } = await supabase
-      .from("questions")
+      .from("questions_dd")
       .select("id, question_number, used")
       .eq("theme", theme)
       .order("question_number");
@@ -75,7 +75,7 @@ function App() {
     setCorrectAnswered(false);
 
     const { data, error } = await supabase
-      .from("questions")
+      .from("questions_dd")
       .select("*")
       .eq("id", id)
       .single();
@@ -92,7 +92,7 @@ function App() {
   }
 
   async function markAsUsed(id) {
-    await supabase.from("questions").update({ used: true }).eq("id", id);
+    await supabase.from("questions_dd").update({ used: true }).eq("id", id);
 
     loadQuestions(currentCategory);
     setPhase("numbers");
