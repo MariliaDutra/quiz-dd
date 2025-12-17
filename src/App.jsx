@@ -242,11 +242,8 @@ function App() {
     <div
       style={{
         width: "100vw",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
+        minHeight: "100vh",
+        padding: "2rem",
         color: "white",
         textAlign: "center",
       }}
@@ -254,78 +251,85 @@ function App() {
       <h1
         style={{
           fontSize: "3rem",
-          marginBottom: "2rem",
+          marginTop: "1rem",
           padding: "0.5rem 1.5rem",
           background: "rgba(0,0,0,0.6)",
           borderRadius: "999px",
+          display: "inline-block",
         }}
       >
         Formação dos Times
       </h1>
 
-      <button
-        onClick={loadTeams}
-        style={{
-          padding: "1.5rem 4rem",
-          fontSize: "1.8rem",
-          borderRadius: "999px",
-          background: "#dc2626",
-          color: "#fff",
-          border: "none",
-          fontWeight: "bold",
-          cursor: "pointer",
-          boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
-        }}
-      >
-        Sortear times
-      </button>
-        ) : (
-          <>
-            <div
-              style={{
-                marginTop: "2rem",
-                display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
-                gap: "1.5rem",
-              }}
-            >
-              {teams.map((team) => (
-                <div
-                  key={team.id}
-                  style={{
-                    background: "rgba(0,0,0,0.7)",
-                    padding: "1rem",
-                    borderRadius: "12px",
-                    textAlign: "left",
-                  }}
-                >
-                  <h2 style={{ marginBottom: "0.5rem" }}>{team.name}</h2>
-                  <p style={{ whiteSpace: "pre-line" }}>{team.members}</p>
-                </div>
-              ))}
-            </div>
+      {!teamsLoaded && (
+        <div style={{ marginTop: "2rem" }}>
+          <button
+            onClick={loadTeams}
+            style={{
+              padding: "1.5rem 4rem",
+              fontSize: "1.8rem",
+              borderRadius: "999px",
+              background: "#dc2626",
+              color: "#fff",
+              border: "none",
+              fontWeight: "bold",
+              cursor: "pointer",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
+            }}
+          >
+            Sortear times
+          </button>
+        </div>
+      )}
 
-            <button
-              onClick={() => setPhase("categories")}
-              style={{
-                marginTop: "2.5rem",
-                padding: "1rem 3rem",
-                fontSize: "1.2rem",
-                borderRadius: "12px",
-                background: "#22c55e",
-                color: "#fff",
-                border: "none",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              Ir para as categorias
-            </button>
-          </>
-        )}
-      </div>
-    );
-  }
+      {teamsLoaded && (
+        <>
+          <div
+            style={{
+              marginTop: "2rem",
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: "1.5rem",
+            }}
+          >
+            {teams.map((team) => (
+              <div
+                key={team.id}
+                style={{
+                  background: "rgba(0,0,0,0.7)",
+                  padding: "1rem",
+                  borderRadius: "12px",
+                  textAlign: "left",
+                }}
+              >
+                <h2 style={{ marginBottom: "0.5rem" }}>{team.name}</h2>
+                <p style={{ whiteSpace: "pre-line" }}>{team.members}</p>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setPhase("categories")}
+            style={{
+              marginTop: "2.5rem",
+              padding: "1rem 3rem",
+              fontSize: "1.2rem",
+              borderRadius: "12px",
+              background: "#22c55e",
+              color: "#fff",
+              border: "none",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            Ir para as categorias
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 
   // CATEGORIAS
   if (phase === "categories") {
