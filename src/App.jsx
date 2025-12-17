@@ -50,6 +50,8 @@ function App() {
       id: index + 1,
       name: teamName,
       members: members.join("\n"),
+      // depois podemos receber score do banco
+      score: 0,
     }));
 
     setTeams(grouped);
@@ -171,32 +173,6 @@ function App() {
     const randomIndex = Math.floor(Math.random() * raffleCategories.length);
     const chosen = raffleCategories[randomIndex];
     loadQuestions(chosen);
-  }
-
-  // ---------- BOTÃO GLOBAL DE PLACAR ----------
-
-  function ScoreButton() {
-    return (
-      <button
-        onClick={() => setPhase("teams")}
-        style={{
-          position: "fixed",
-          top: "1rem",
-          left: "1rem",
-          padding: "0.6rem 1.4rem",
-          borderRadius: "999px",
-          background: "#111827",
-          color: "#fff",
-          border: "none",
-          cursor: "pointer",
-          fontWeight: "bold",
-          fontSize: "0.9rem",
-          zIndex: 20,
-        }}
-      >
-        Ver placar
-      </button>
-    );
   }
 
   // ---------- TELAS ----------
@@ -354,8 +330,16 @@ function App() {
                   }}
                 >
                   <h2 style={{ marginBottom: "0.5rem" }}>{team.name}</h2>
-                  <p style={{ whiteSpace: "pre-line" }}>{team.members}</p>
-                  {/* depois aqui entram os pontos */}
+                  <p
+                    style={{
+                      whiteSpace: "pre-line",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {team.members}
+                  </p>
+                  {/* placar (por enquanto 0; depois ligamos no Supabase) */}
+                  <p style={{ fontWeight: "bold" }}>Pontos: {team.score}</p>
                 </div>
               ))}
             </div>
@@ -386,7 +370,29 @@ function App() {
   if (phase === "categories") {
     return (
       <>
-        <ScoreButton />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "1rem",
+            marginTop: "1rem",
+          }}
+        >
+          <button
+            onClick={() => setPhase("teams")}
+            style={{
+              padding: "0.8rem 1.6rem",
+              borderRadius: "999px",
+              background: "#111827",
+              color: "#fff",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Ver placar
+          </button>
+        </div>
 
         <div
           style={{
@@ -463,12 +469,46 @@ function App() {
   if (phase === "numbers") {
     return (
       <div>
-        <ScoreButton />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "1rem",
+            marginTop: "1rem",
+          }}
+        >
+          <button
+            onClick={() => setPhase("teams")}
+            style={{
+              padding: "0.8rem 1.6rem",
+              borderRadius: "999px",
+              background: "#111827",
+              color: "#fff",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Ver placar
+          </button>
 
-        <h1>{currentCategory}</h1>
-        <button onClick={() => setPhase("categories")}>
-          Voltar para Categorias
-        </button>
+          <button
+            onClick={() => setPhase("categories")}
+            style={{
+              padding: "0.8rem 1.6rem",
+              borderRadius: "999px",
+              background: "#3b82f6",
+              color: "#fff",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Voltar para Categorias
+          </button>
+        </div>
+
+        <h1 style={{ marginTop: "1.5rem" }}>{currentCategory}</h1>
         <div
           style={{
             display: "grid",
@@ -499,12 +539,48 @@ function App() {
   if (phase === "question" && currentQuestion) {
     return (
       <div>
-        <ScoreButton />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "1rem",
+            marginTop: "1rem",
+          }}
+        >
+          <button
+            onClick={() => setPhase("teams")}
+            style={{
+              padding: "0.8rem 1.6rem",
+              borderRadius: "999px",
+              background: "#111827",
+              color: "#fff",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Ver placar
+          </button>
 
-        <h2>Pergunta {currentQuestion.question_number}</h2>
-        <button onClick={() => setPhase("numbers")}>
-          Voltar para Números
-        </button>
+          <button
+            onClick={() => setPhase("numbers")}
+            style={{
+              padding: "0.8rem 1.6rem",
+              borderRadius: "999px",
+              background: "#3b82f6",
+              color: "#fff",
+              border: "none",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          >
+            Voltar para Números
+          </button>
+        </div>
+
+        <h2 style={{ marginTop: "1.5rem" }}>
+          Pergunta {currentQuestion.question_number}
+        </h2>
 
         <div style={{ marginTop: "2rem" }}>
           <h3>{currentQuestion.question}</h3>
