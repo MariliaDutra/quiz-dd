@@ -4,6 +4,7 @@ import { supabase } from "./supabaseClient";
 function App() {
   const [phase, setPhase] = useState("teams"); // começa na tela de times
   const [showRules, setShowRules] = useState(true);
+
   const [categories, setCategories] = useState([]);
   const [raffleCategories, setRaffleCategories] = useState([]);
   const [currentCategory, setCurrentCategory] = useState(null);
@@ -14,7 +15,7 @@ function App() {
   const [correctAnswered, setCorrectAnswered] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // NOVO: times
+  // TIMES (via players)
   const [teams, setTeams] = useState([]);
   const [teamsLoaded, setTeamsLoaded] = useState(false);
 
@@ -22,23 +23,37 @@ function App() {
     loadCategories();
   }, []);
 
-  // ---------- TIMES ----------
+  // ---------- TIMES (usa tabela players) ----------
 
   async function loadTeams() {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("teams_dd") // <-- nome da tabela de times
-      .select("id, name, members")
-      .order("id");
+      .from("players") // nome da tabela com player, team_name
+      .select("id, player, team_name")
+      .order("team_name");
 
     if (error) {
-      console.error("Erro ao carregar times:", error);
+      console.error("Erro ao carregar jogadores:", error);
       setLoading(false);
       return;
     }
 
-    setTeams(data || []);
+    // Agrupa por team_name
+    const map = {};
+    (data || []).forEach((row) => {
+      const team = row.team_name || "Sem time";
+      if (!map[team]) map[team] = [];
+      map[team].push(row.player);
+    });
+
+    const grouped = Object.entries(map).map(([teamName, members], index) => ({
+      id: index + 1,
+      name: teamName,
+      members: members.join("\n"),
+    }));
+
+    setTeams(grouped);
     setTeamsLoaded(true);
     setLoading(false);
   }
@@ -169,7 +184,7 @@ function App() {
     );
   }
 
-  // TELA DE REGRAS (fica antes de tudo)
+  // REGRAS PRIMEIRO
   if (showRules) {
     return (
       <div
@@ -194,9 +209,15 @@ function App() {
           }}
         >
           <h1 style={{ marginBottom: "1rem" }}>Regras do Jogo</h1>
-          {/* ... mantém o seu <ul> de regras aqui igual estava ... */}
+
+          {/* mantém exatamente o seu <ul> de regras aqui */}
+          {/* ... */}
+
           <button
-            onClick={() => setShowRules(false)}
+            onClick={() => {
+              setShowRules(false);
+              setPhase("teams"); // ao sair das regras, ir para times
+            }}
             style={{
               marginTop: "2rem",
               padding: "1rem 2.5rem",
@@ -216,7 +237,7 @@ function App() {
     );
   }
 
-  // NOVA TELA: TIMES
+  // TELA DE TIMES
   if (phase === "teams") {
     return (
       <div
@@ -295,11 +316,10 @@ function App() {
     );
   }
 
-  // TELA DE CATEGORIAS
+  // CATEGORIAS
   if (phase === "categories") {
     return (
       <>
-        {/* coluna de categorias à direita */}
         <div
           style={{
             display: "flex",
@@ -342,7 +362,6 @@ function App() {
           </div>
         </div>
 
-        {/* botão SORTEAR CATEGORIA no meio da tela */}
         <div
           style={{
             position: "fixed",
@@ -372,7 +391,7 @@ function App() {
     );
   }
 
-  // TELA DE NÚMEROS
+  // NÚMEROS
   if (phase === "numbers") {
     return (
       <div>
@@ -406,7 +425,7 @@ function App() {
     );
   }
 
-  // TELA DA PERGUNTA
+  // PERGUNTA
   if (phase === "question" && currentQuestion) {
     return (
       <div>
