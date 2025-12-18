@@ -371,18 +371,22 @@ if (phase === "teams") {
 
       {/* RODADA ATUAL EM DESTAQUE */}
       <p
-        style={{
-          marginTop: "1rem",
-          fontSize: "1.4rem",
-          fontWeight: "bold",
-          textDecoration: "underline",
-          textShadow: "0 2px 4px rgba(0,0,0,0.8)",
-        }}
-      >
-        Rodada atual: {currentRound}
-        {isLightning ? " – DESEMPATE" : ""}
-      </p>
-
+  style={{
+    marginTop: "1rem",
+    display: "inline-block",
+    padding: "0.3rem 1.2rem",
+    fontSize: "1.2rem",
+    fontWeight: "bold",
+    color: "#fff",
+    background: "rgba(0,0,0,0.7)",
+    borderRadius: "999px",
+    textDecoration: "none",
+    textShadow: "0 2px 4px rgba(0,0,0,0.8)",
+  }}
+>
+  Rodada atual: {currentRound}
+  {isLightning ? " – DESEMPATE" : ""}
+</p>
       {/* COLUNA ESQUERDA: CONTROLES DE RODADA */}
       <div
         style={{
