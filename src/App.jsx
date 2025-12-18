@@ -343,179 +343,227 @@ function App() {
   //  - Mostra membros e placar com +1 / -1
   //  - Botões para ir para categorias ou próxima rodada
   // -----------------------------------------------------
-  if (phase === "teams") {
-    return (
-      <div
+  // TELA 1: TIMES / PLACAR (phase === "teams")
+if (phase === "teams") {
+  return (
+    <div
+      style={{
+        width: "100vw",
+        minHeight: "100vh",
+        padding: "2rem",
+        color: "white",
+        textAlign: "center",
+      }}
+    >
+      {/* TÍTULO PRINCIPAL */}
+      <h1
         style={{
-          width: "100vw",
-          minHeight: "100vh",
-          padding: "2rem",
-          color: "white",
-          textAlign: "center",
+          fontSize: "3rem",
+          marginTop: "1rem",
+          padding: "0.5rem 1.5rem",
+          background: "rgba(0,0,0,0.6)",
+          borderRadius: "999px",
+          display: "inline-block",
         }}
       >
-        <h1
+        Times e Rodadas
+      </h1>
+
+      {/* RODADA ATUAL EM DESTAQUE */}
+      <p
+        style={{
+          marginTop: "1rem",
+          fontSize: "1.4rem",
+          fontWeight: "bold",
+          textDecoration: "underline",
+        }}
+      >
+        Rodada atual: {currentRound}
+        {isLightning ? " – DESEMPATE" : ""}
+      </p>
+
+      {/* COLUNA ESQUERDA: CONTROLES DE RODADA */}
+      <div
+        style={{
+          marginTop: "2rem",
+          display: "grid",
+          gridTemplateColumns: "1fr 2fr 2fr", // esquerda = botões, meio e direita = times
+          gap: "1.5rem",
+          alignItems: "flex-start",
+        }}
+      >
+        {/* COLUNA DE BOTÕES DE RODADA / DESEMPATE */}
+        <div
           style={{
-            fontSize: "3rem",
-            marginTop: "1rem",
-            padding: "0.5rem 1.5rem",
-            background: "rgba(0,0,0,0.6)",
-            borderRadius: "999px",
-            display: "inline-block",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
           }}
         >
-          Formação dos Times
-        </h1>
+          {/* Botão de DESEMPATE da rodada atual */}
+          <button
+            onClick={() => {
+              // se já está em desempate, desligar; se não está, ligar e ir para categorias
+              const nextIsLightning = !isLightning;
+              setIsLightning(nextIsLightning);
+              if (nextIsLightning) {
+                setPhase("categories"); // vai escolher pergunta de desempate
+              }
+            }}
+            style={{
+              padding: "1rem 1.5rem",
+              fontSize: "1rem",
+              borderRadius: "8px",
+              background: isLightning ? "#b91c1c" : "#1f2937",
+              color: "#fff",
+              border: "none",
+              fontWeight: "bold",
+              cursor: "pointer",
+              textAlign: "center",
+            }}
+          >
+            {isLightning ? "Encerrar DESEMPATE" : "DESEMPATE da rodada"}
+          </button>
 
-        {/* Subtítulo com rodada atual (e se está em desempate) */}
-        <p style={{ marginTop: "0.5rem", fontSize: "1.1rem" }}>
-          Rodada {currentRound} {isLightning ? "– Desempate" : ""}
-        </p>
+          {/* Botão para iniciar próxima rodada */}
+          <button
+            onClick={() => {
+              setCurrentRound((prev) => (prev < 4 ? prev + 1 : 4));
+              setIsLightning(false);
+              setPhase("categories"); // já entra nas categorias da nova rodada
+            }}
+            style={{
+              padding: "1rem 1.5rem",
+              fontSize: "1rem",
+              borderRadius: "8px",
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              fontWeight: "bold",
+              cursor: "pointer",
+              textAlign: "center",
+            }}
+          >
+            Iniciar próxima rodada
+          </button>
+        </div>
 
-        {/* Botão para sortear times (só aparece se ainda não carregou) */}
-        {!teamsLoaded && (
-          <div style={{ marginTop: "2rem" }}>
-            <button
-              onClick={loadTeams}
-              style={{
-                padding: "1.5rem 4rem",
-                fontSize: "1.8rem",
-                borderRadius: "999px",
-                background: "#dc2626",
-                color: "#fff",
-                border: "none",
-                fontWeight: "bold",
-                cursor: "pointer",
-                boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
-              }}
-            >
-              Sortear times
-            </button>
-          </div>
-        )}
-
-        {/* Lista de times + placar + botões de navegação */}
-        {teamsLoaded && (
-          <>
+        {/* COLUNAS DE TIMES (PLACAR) */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1.5rem",
+            gridColumn: "span 2",
+          }}
+        >
+          {!teamsLoaded && (
             <div
               style={{
-                marginTop: "2rem",
-                display: "grid",
-                gridTemplateColumns: "repeat(2, 1fr)",
-                gap: "1.5rem",
+                gridColumn: "1 / -1",
+                display: "flex",
+                justifyContent: "center",
               }}
             >
-              {teams.map((team) => (
-                <div
-                  key={team.id}
+              <button
+                onClick={loadTeams}
+                style={{
+                  padding: "1.5rem 4rem",
+                  fontSize: "1.8rem",
+                  borderRadius: "999px",
+                  background: "#dc2626",
+                  color: "#fff",
+                  border: "none",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                  boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
+                }}
+              >
+                Sortear times
+              </button>
+            </div>
+          )}
+
+          {teamsLoaded &&
+            teams.map((team) => (
+              <div
+                key={team.id}
+                style={{
+                  background: "rgba(0,0,0,0.7)",
+                  padding: "1rem",
+                  borderRadius: "12px",
+                  textAlign: "left",
+                  minHeight: "180px",
+                }}
+              >
+                <h2 style={{ marginBottom: "0.5rem" }}>{team.name}</h2>
+                <p
                   style={{
-                    background: "rgba(0,0,0,0.7)",
-                    padding: "1rem",
-                    borderRadius: "12px",
-                    textAlign: "left",
+                    whiteSpace: "pre-line",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.95rem",
                   }}
                 >
-                  <h2 style={{ marginBottom: "0.5rem" }}>{team.name}</h2>
-                  <p
+                  {team.members}
+                </p>
+
+                {/* PLACAR DO TIME */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    marginTop: "0.75rem",
+                  }}
+                >
+                  <span style={{ fontWeight: "bold", fontSize: "1.1rem" }}>
+                    Pontos: {team.score ?? 0}
+                  </span>
+
+                  <button
+                    onClick={() => changeScore(team.id, 10)}
                     style={{
-                      whiteSpace: "pre-line",
-                      marginBottom: "0.5rem",
+                      padding: "0.4rem 1rem",
+                      borderRadius: "999px",
+                      border: "none",
+                      background: "#22c55e",
+                      color: "#fff",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      fontSize: "1rem",
                     }}
                   >
-                    {team.members}
-                  </p>
-
-                  {/* PLACAR DO TIME ATUAL */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      marginTop: "0.5rem",
-                    }}
-                  >
-                    <span style={{ fontWeight: "bold" }}>
-                      Pontos: {team.score ?? 0}
-                    </span>
-
-                    <button
-                      onClick={() => changeScore(team.id, -1)}
-                      style={{
-                        padding: "0.2rem 0.6rem",
-                        borderRadius: "999px",
-                        border: "none",
-                        background: "#ef4444",
-                        color: "#fff",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      -1
-                    </button>
-                    <button
-                      onClick={() => changeScore(team.id, 1)}
-                      style={{
-                        padding: "0.2rem 0.6rem",
-                        borderRadius: "999px",
-                        border: "none",
-                        background: "#22c55e",
-                        color: "#fff",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      +1
-                    </button>
-                  </div>
+                    +10
+                  </button>
                 </div>
-              ))}
-            </div>
-
-            {/* Botão padrão: ir para categorias na rodada atual */}
-            <button
-              onClick={() => setPhase("categories")}
-              style={{
-                marginTop: "2.5rem",
-                padding: "1rem 3rem",
-                fontSize: "1.2rem",
-                borderRadius: "12px",
-                background: "#22c55e",
-                color: "#fff",
-                border: "none",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              Ir para as categorias
-            </button>
-
-            {/* Botão opcional: ir direto para a próxima rodada */}
-            <button
-              onClick={() => {
-                setCurrentRound((prev) => (prev < 4 ? prev + 1 : 4));
-                setIsLightning(false);
-                setPhase("categories");
-              }}
-              style={{
-                marginTop: "1rem",
-                marginLeft: "0.5rem",
-                padding: "0.8rem 2rem",
-                fontSize: "1rem",
-                borderRadius: "999px",
-                background: "#f97316",
-                color: "#fff",
-                border: "none",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-            >
-              Ir para próxima rodada
-            </button>
-          </>
-        )}
+              </div>
+            ))}
+        </div>
       </div>
-    );
-  }
+
+      {/* BOTÃO CENTRAL PARA IR PARA AS CATEGORIAS DA RODADA ATUAL */}
+      {teamsLoaded && (
+        <div style={{ marginTop: "1.5rem" }}>
+          <button
+            onClick={() => setPhase("categories")}
+            style={{
+              padding: "1rem 3rem",
+              fontSize: "1.2rem",
+              borderRadius: "12px",
+              background: "#22c55e",
+              color: "#fff",
+              border: "none",
+              fontWeight: "bold",
+              cursor: "pointer",
+            }}
+          >
+            Ir para categorias
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
   // -----------------------------------------------------
   // TELA 2: CATEGORIAS (phase === "categories")
@@ -549,11 +597,10 @@ function App() {
             Ver placar
           </button>
         </div>
-
         {/* Subtítulo com rodada atual */}
-        <h2 style={{ textAlign: "center", marginTop: "0.5rem" }}>
-          Rodada {currentRound} {isLightning ? "– Desempate" : ""}
-        </h2>
+      <h2 style={{ textAlign: "center", marginTop: "0.5rem" }}>
+        Rodada {currentRound} {isLightning ? "– DESEMPATE" : ""}
+      </h2>
 
         {/* Coluna de categorias à direita */}
         <div
@@ -676,11 +723,10 @@ function App() {
           </button>
         </div>
 
-        {/* Rodada + nome da categoria */}
-        <h2 style={{ marginTop: "0.5rem" }}>
-          Rodada {currentRound} {isLightning ? "– Desempate" : ""}
-        </h2>
-        <h1 style={{ marginTop: "0.5rem" }}>{currentCategory}</h1>
+       <h2 style={{ marginTop: "0.5rem" }}>
+  Rodada {currentRound} {isLightning ? "– DESEMPATE" : ""}
+</h2>
+<h1 style={{ marginTop: "0.5rem" }}>{currentCategory}</h1>
 
         {/* Grade de 1–30 */}
         <div
@@ -714,59 +760,37 @@ function App() {
   //  - Mostra pergunta e alternativas A/B/C/D
   //  - Botões de navegação e controle de resposta
   // -----------------------------------------------------
-  if (phase === "question" && currentQuestion) {
-    return (
-      <div>
-        {/* Barra de topo: Ver placar + Voltar para números */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "1rem",
-            marginTop: "1rem",
-          }}
-        >
-          <button
-            onClick={() => setPhase("teams")}
-            style={{
-              padding: "0.8rem 1.6rem",
-              borderRadius: "999px",
-              background: "#111827",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            Ver placar
-          </button>
+ if (phase === "question" && currentQuestion) {
+  return (
+    <div>
+      {/* Barra de topo: Ver placar + Voltar para números */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "1rem",
+          marginTop: "1rem",
+        }}
+      >
+        <button onClick={() => setPhase("teams")} style={{ ... }}>
+          Ver placar
+        </button>
 
-          <button
-            onClick={() => setPhase("numbers")}
-            style={{
-              padding: "0.8rem 1.6rem",
-              borderRadius: "999px",
-              background: "#3b82f6",
-              color: "#fff",
-              border: "none",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            Voltar para Números
-          </button>
-        </div>
+        <button onClick={() => setPhase("numbers")} style={{ ... }}>
+          Voltar para Números
+        </button>
+      </div>
 
-        {/* Rodada + número da pergunta */}
-        <h3 style={{ marginTop: "0.5rem", textAlign: "center" }}>
-          Rodada {currentRound} {isLightning ? "– Desempate" : ""}
-        </h3>
+      {/* Rodada + número da pergunta */}
+      <h3 style={{ marginTop: "0.5rem", textAlign: "center" }}>
+        Rodada {currentRound} {isLightning ? "– DESEMPATE" : ""}
+      </h3>
 
-        <h2 style={{ marginTop: "1.5rem" }}>
-          Pergunta {currentQuestion.question_number}
-        </h2>
+      <h2 style={{ marginTop: "1.5rem", textAlign: "center" }}>
+        Pergunta {currentQuestion.question_number}
+      </h2>
 
-        {/* Texto da pergunta */}
+      {/* Texto da pergunta */}
         <div style={{ marginTop: "2rem" }}>
           <h3>{currentQuestion.question}</h3>
 
