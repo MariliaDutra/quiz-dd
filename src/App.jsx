@@ -1,36 +1,72 @@
+// App.jsx
+// -------------------------------------------------------
+// IMPORTS BÁSICOS
+// -------------------------------------------------------
 import { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
 function App() {
+  // -----------------------------------------------------
+  // ESTADOS GERAIS DO FLUXO
+  // phase controla qual "tela" está visível
+  //   - teams      => formação dos times / placar
+  //   - categories => escolha de categoria
+  //   - numbers    => escolha do número da pergunta
+  //   - question   => pergunta na tela
+  // showRules controla o modal inicial de regras
+  // -----------------------------------------------------
   const [phase, setPhase] = useState("teams"); // começa na tela de times
   const [showRules, setShowRules] = useState(true);
 
+  // -----------------------------------------------------
+  // ESTADOS DE CATEGORIAS / PERGUNTAS
+  // -----------------------------------------------------
   const [categories, setCategories] = useState([]);
-  const [raffleCategories, setRaffleCategories] = useState([]);
+  const [raffleCategories, setRaffleCategories] = useState([]); // para sortear categoria
   const [currentCategory, setCurrentCategory] = useState(null);
-  const [questions, setQuestions] = useState([]);
-  const [currentQuestion, setCurrentQuestion] = useState(null);
+  const [questions, setQuestions] = useState([]); // lista dos números (1–30)
+  const [currentQuestion, setCurrentQuestion] = useState(null); // pergunta aberta
+
+  // controle da resposta da pergunta atual
   const [selectedAnswers, setSelectedAnswers] = useState([]);
   const [showCorrectAnswer, setShowCorrectAnswer] = useState(false);
   const [correctAnswered, setCorrectAnswered] = useState(false);
+
+  // loading global (usado em várias chamadas Supabase)
   const [loading, setLoading] = useState(false);
- 
-  // TIMES (via players)
+
+  // -----------------------------------------------------
+  // ESTADOS DE TIMES / PLACAR
+  //   - teams: array com { id, name, members, score }
+  //   - teamsLoaded: indica se já carregou os times
+  // -----------------------------------------------------
   const [teams, setTeams] = useState([]);
   const [teamsLoaded, setTeamsLoaded] = useState(false);
 
+  // -----------------------------------------------------
+  // ESTADOS DE RODADA / LIGHTNING
+  //   - currentRound: 1 a 4
+  //   - isLightning: se a rodada atual está em desempate
+  // -----------------------------------------------------
+  const [currentRound, setCurrentRound] = useState(1);
+  const [isLightning, setIsLightning] = useState(false);
+
+  // -----------------------------------------------------
+  // EFEITO INICIAL: CARREGA CATEGORIAS AO MONTAR O APP
+  // -----------------------------------------------------
   useEffect(() => {
     loadCategories();
   }, []);
 
-  // ---------- TIMES (usa tabela players) ----------
-
+  // -----------------------------------------------------
+  // FUNÇÕES: TIMES (usa tabela players)
+  // -----------------------------------------------------
   async function loadTeams() {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("players")
-      .select("id, player, team_name")
+      .from("players") // tabela de jogadores
+      .select("id, player, team_name") // colunas: id, nome do jogador, nome do time
       .order("team_name");
 
     if (error) {
@@ -39,6 +75,7 @@ function App() {
       return;
     }
 
+    // Agrupa jogadores por nome de time
     const map = {};
     (data || []).forEach((row) => {
       const team = row.team_name || "Sem time";
@@ -46,12 +83,12 @@ function App() {
       map[team].push(row.player);
     });
 
+    // Monta o array de teams com membros concatenados
     const grouped = Object.entries(map).map(([teamName, members], index) => ({
       id: index + 1,
       name: teamName,
       members: members.join("\n"),
-      // depois podemos receber score do banco
-      score: 0,
+      score: 0, // score local (placar) - pode ser ligado ao Supabase depois
     }));
 
     setTeams(grouped);
@@ -59,8 +96,18 @@ function App() {
     setLoading(false);
   }
 
-  // ---------- CATEGORIAS / PERGUNTAS ----------
+  // Ajusta o score de um time no placar local
+  function changeScore(teamId, delta) {
+    setTeams((prev) =>
+      prev.map((t) =>
+        t.id === teamId ? { ...t, score: (t.score || 0) + delta } : t
+      )
+    );
+  }
 
+  // -----------------------------------------------------
+  // FUNÇÕES: CATEGORIAS / PERGUNTAS (usa tabela questions_dd)
+  // -----------------------------------------------------
   async function loadCategories() {
     const { data, error } = await supabase
       .from("questions_dd")
@@ -75,19 +122,23 @@ function App() {
     if (data) {
       const unique = [...new Set(data.map((q) => q.theme))];
 
+      // Mantém "Kids e Disney" sempre por último
       const kidsLabel = "Kids e Disney";
       const other = unique.filter((c) => c !== kidsLabel);
       const ordered = [...other, kidsLabel];
 
       setCategories(ordered);
 
+      // Lista de categorias que podem ser sorteadas
       const raffle = ordered.filter((c) => c && c !== kidsLabel);
       setRaffleCategories(raffle);
     }
   }
 
+  // Carrega a lista de perguntas (só os números) da categoria escolhida
   async function loadQuestions(theme) {
     setLoading(true);
+
     const { data, error } = await supabase
       .from("questions_dd")
       .select("id, question_number, used")
@@ -101,11 +152,13 @@ function App() {
     if (data) {
       setQuestions(data);
       setCurrentCategory(theme);
-      setPhase("numbers");
+      setPhase("numbers"); // vai para tela de números (1–30)
     }
+
     setLoading(false);
   }
 
+  // Carrega os dados completos de uma pergunta específica
   async function loadQuestion(id) {
     setLoading(true);
     setSelectedAnswers([]);
@@ -124,65 +177,77 @@ function App() {
 
     if (data) {
       setCurrentQuestion(data);
-      setPhase("question");
+      setPhase("question"); // vai para tela de pergunta
     }
+
     setLoading(false);
   }
 
+  // Marca a pergunta como usada (used = true) e volta para os números
   async function markAsUsed(id) {
     await supabase.from("questions_dd").update({ used: true }).eq("id", id);
-
-    loadQuestions(currentCategory);
+    await loadQuestions(currentCategory); // recarrega lista marcando como usada
     setPhase("numbers");
   }
 
+  // -----------------------------------------------------
+  // FUNÇÕES: LÓGICA DE RESPOSTA DA PERGUNTA
+  // -----------------------------------------------------
   function handleAnswerClick(option) {
+    // se já acertou ou já clicou nessa opção, não faz nada
     if (correctAnswered || selectedAnswers.includes(option)) return;
 
     const correctAnswer = currentQuestion.correct_option.toUpperCase().trim();
     const optionUpper = option.toUpperCase().trim();
 
-    setSelectedAnswers([...selectedAnswers, option]);
+    // adiciona opção clicada ao array de selecionadas
+    setSelectedAnswers((prev) => [...prev, option]);
 
+    // se for a correta, marca como acertada
     if (optionUpper === correctAnswer) {
       setCorrectAnswered(true);
     }
   }
 
+  // Define o estilo visual de cada botão de alternativa
   function getButtonStyle(option) {
-    const correctAnswer = currentQuestion.correct_option.toUpperCase().trim();
+    const correctAnswer = currentQuestion.correct_option
+      .toUpperCase()
+      .trim();
     const optionUpper = option.toUpperCase().trim();
 
+    // Verde para a correta (quando já acertou ou escolheu mostrar resposta)
     if ((correctAnswered || showCorrectAnswer) && optionUpper === correctAnswer) {
       return { background: "#4ade80", color: "white" };
     }
 
+    // Vermelho para a opção errada que foi clicada
     if (selectedAnswers.includes(option) && optionUpper !== correctAnswer) {
       return { background: "#ef4444", color: "white" };
     }
 
+    // Cinza desabilitado para opções já clicadas
     if (selectedAnswers.includes(option)) {
       return { background: "#333", opacity: 0.5, cursor: "not-allowed" };
     }
 
+    // Padrão azul
     return { background: "#646cff" };
   }
 
+  // Sorteia uma categoria dentre raffleCategories e carrega as perguntas
   function handleRaffleCategory() {
     if (!raffleCategories.length) return;
     const randomIndex = Math.floor(Math.random() * raffleCategories.length);
     const chosen = raffleCategories[randomIndex];
     loadQuestions(chosen);
   }
-  function changeScore(teamId, delta) {
-    setTeams((prev) =>
-      prev.map((t) =>
-        t.id === teamId ? { ...t, score: (t.score || 0) + delta } : t
-      )
-    );
-  }
-  // ---------- TELAS ----------
 
+  // -----------------------------------------------------
+  // TELAS (RENDER CONDICIONAL POR phase)
+  // -----------------------------------------------------
+
+  // Tela de loading global
   if (loading) {
     return (
       <div>
@@ -191,7 +256,10 @@ function App() {
     );
   }
 
-  // REGRAS PRIMEIRO
+  // -----------------------------------------------------
+  // TELA 0: REGRAS (modal inicial)
+  // aparece enquanto showRules === true
+  // -----------------------------------------------------
   if (showRules) {
     return (
       <div
@@ -247,7 +315,7 @@ function App() {
             <button
               onClick={() => {
                 setShowRules(false);
-                setPhase("teams");
+                setPhase("teams"); // vai para formação dos times/placar
               }}
               style={{
                 marginTop: "2rem",
@@ -269,7 +337,12 @@ function App() {
     );
   }
 
-  // TELA DE TIMES (PLACAR)
+  // -----------------------------------------------------
+  // TELA 1: TIMES / PLACAR (phase === "teams")
+  //  - Sorteia times a partir da tabela players
+  //  - Mostra membros e placar com +1 / -1
+  //  - Botões para ir para categorias ou próxima rodada
+  // -----------------------------------------------------
   if (phase === "teams") {
     return (
       <div
@@ -294,6 +367,12 @@ function App() {
           Formação dos Times
         </h1>
 
+        {/* Subtítulo com rodada atual (e se está em desempate) */}
+        <p style={{ marginTop: "0.5rem", fontSize: "1.1rem" }}>
+          Rodada {currentRound} {isLightning ? "– Desempate" : ""}
+        </p>
+
+        {/* Botão para sortear times (só aparece se ainda não carregou) */}
         {!teamsLoaded && (
           <div style={{ marginTop: "2rem" }}>
             <button
@@ -315,6 +394,7 @@ function App() {
           </div>
         )}
 
+        {/* Lista de times + placar + botões de navegação */}
         {teamsLoaded && (
           <>
             <div
@@ -344,78 +424,108 @@ function App() {
                   >
                     {team.members}
                   </p>
-                   {/* PLACAR */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              marginTop: "0.5rem",
-            }}
-          >
-            <span style={{ fontWeight: "bold" }}>
-              Pontos: {team.score ?? 0}
-            </span>
 
+                  {/* PLACAR DO TIME ATUAL */}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    <span style={{ fontWeight: "bold" }}>
+                      Pontos: {team.score ?? 0}
+                    </span>
+
+                    <button
+                      onClick={() => changeScore(team.id, -1)}
+                      style={{
+                        padding: "0.2rem 0.6rem",
+                        borderRadius: "999px",
+                        border: "none",
+                        background: "#ef4444",
+                        color: "#fff",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      -1
+                    </button>
+                    <button
+                      onClick={() => changeScore(team.id, 1)}
+                      style={{
+                        padding: "0.2rem 0.6rem",
+                        borderRadius: "999px",
+                        border: "none",
+                        background: "#22c55e",
+                        color: "#fff",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      +1
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Botão padrão: ir para categorias na rodada atual */}
             <button
-              onClick={() => changeScore(team.id, -1)}
+              onClick={() => setPhase("categories")}
               style={{
-                padding: "0.2rem 0.6rem",
-                borderRadius: "999px",
-                border: "none",
-                background: "#ef4444",
-                color: "#fff",
-                cursor: "pointer",
-                fontWeight: "bold",
-              }}
-            >
-              -1
-            </button>
-            <button
-              onClick={() => changeScore(team.id, 1)}
-              style={{
-                padding: "0.2rem 0.6rem",
-                borderRadius: "999px",
-                border: "none",
+                marginTop: "2.5rem",
+                padding: "1rem 3rem",
+                fontSize: "1.2rem",
+                borderRadius: "12px",
                 background: "#22c55e",
                 color: "#fff",
-                cursor: "pointer",
+                border: "none",
                 fontWeight: "bold",
+                cursor: "pointer",
               }}
             >
-              +1
+              Ir para as categorias
             </button>
-          </div>
-        </div>
-      ))}
-    </div>
 
-    <button
-      onClick={() => setPhase("categories")}
-      style={{
-        marginTop: "2.5rem",
-        padding: "1rem 3rem",
-        fontSize: "1.2rem",
-        borderRadius: "12px",
-        background: "#22c55e",
-        color: "#fff",
-        border: "none",
-        fontWeight: "bold",
-        cursor: "pointer",
-      }}
-    >
-      Ir para as categorias
-    </button>
-  </>
-)}
+            {/* Botão opcional: ir direto para a próxima rodada */}
+            <button
+              onClick={() => {
+                setCurrentRound((prev) => (prev < 4 ? prev + 1 : 4));
+                setIsLightning(false);
+                setPhase("categories");
+              }}
+              style={{
+                marginTop: "1rem",
+                marginLeft: "0.5rem",
+                padding: "0.8rem 2rem",
+                fontSize: "1rem",
+                borderRadius: "999px",
+                background: "#f97316",
+                color: "#fff",
+                border: "none",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Ir para próxima rodada
+            </button>
+          </>
+        )}
       </div>
     );
   }
 
-  // CATEGORIAS
+  // -----------------------------------------------------
+  // TELA 2: CATEGORIAS (phase === "categories")
+  //  - Escolha ou sorteio de categoria
+  //  - Botão "Ver placar" para voltar à tela de times
+  // -----------------------------------------------------
   if (phase === "categories") {
     return (
       <>
+        {/* Barra de topo: botão Ver placar */}
         <div
           style={{
             display: "flex",
@@ -440,6 +550,12 @@ function App() {
           </button>
         </div>
 
+        {/* Subtítulo com rodada atual */}
+        <h2 style={{ textAlign: "center", marginTop: "0.5rem" }}>
+          Rodada {currentRound} {isLightning ? "– Desempate" : ""}
+        </h2>
+
+        {/* Coluna de categorias à direita */}
         <div
           style={{
             display: "flex",
@@ -482,6 +598,7 @@ function App() {
           </div>
         </div>
 
+        {/* Botão grande de sortear categoria, no meio da tela */}
         <div
           style={{
             position: "fixed",
@@ -511,10 +628,15 @@ function App() {
     );
   }
 
-  // NÚMEROS
+  // -----------------------------------------------------
+  // TELA 3: NÚMEROS (phase === "numbers")
+  //  - Mostra grade de 1–30 da categoria atual
+  //  - Botões Ver placar / Voltar para categorias
+  // -----------------------------------------------------
   if (phase === "numbers") {
     return (
       <div>
+        {/* Barra de topo: Ver placar + Voltar para categorias */}
         <div
           style={{
             display: "flex",
@@ -554,7 +676,13 @@ function App() {
           </button>
         </div>
 
-        <h1 style={{ marginTop: "1.5rem" }}>{currentCategory}</h1>
+        {/* Rodada + nome da categoria */}
+        <h2 style={{ marginTop: "0.5rem" }}>
+          Rodada {currentRound} {isLightning ? "– Desempate" : ""}
+        </h2>
+        <h1 style={{ marginTop: "0.5rem" }}>{currentCategory}</h1>
+
+        {/* Grade de 1–30 */}
         <div
           style={{
             display: "grid",
@@ -581,10 +709,15 @@ function App() {
     );
   }
 
-  // PERGUNTA
+  // -----------------------------------------------------
+  // TELA 4: PERGUNTA (phase === "question")
+  //  - Mostra pergunta e alternativas A/B/C/D
+  //  - Botões de navegação e controle de resposta
+  // -----------------------------------------------------
   if (phase === "question" && currentQuestion) {
     return (
       <div>
+        {/* Barra de topo: Ver placar + Voltar para números */}
         <div
           style={{
             display: "flex",
@@ -624,13 +757,20 @@ function App() {
           </button>
         </div>
 
+        {/* Rodada + número da pergunta */}
+        <h3 style={{ marginTop: "0.5rem", textAlign: "center" }}>
+          Rodada {currentRound} {isLightning ? "– Desempate" : ""}
+        </h3>
+
         <h2 style={{ marginTop: "1.5rem" }}>
           Pergunta {currentQuestion.question_number}
         </h2>
 
+        {/* Texto da pergunta */}
         <div style={{ marginTop: "2rem" }}>
           <h3>{currentQuestion.question}</h3>
 
+          {/* Alternativas A/B/C/D como botões */}
           <div
             style={{
               marginTop: "2rem",
@@ -665,6 +805,7 @@ function App() {
             </button>
           </div>
 
+          {/* Botão para marcar a pergunta como usada (quando acertou) */}
           {correctAnswered && (
             <button
               onClick={() => markAsUsed(currentQuestion.id)}
@@ -674,6 +815,7 @@ function App() {
             </button>
           )}
 
+          {/* Botão para mostrar a resposta correta (se errou) */}
           {selectedAnswers.length > 0 &&
             !correctAnswered &&
             !showCorrectAnswer && (
@@ -689,6 +831,7 @@ function App() {
               </button>
             )}
 
+          {/* Depois de mostrar a resposta, também pode marcar como usada */}
           {showCorrectAnswer && (
             <button
               onClick={() => markAsUsed(currentQuestion.id)}
@@ -702,6 +845,7 @@ function App() {
     );
   }
 
+  // Se nenhuma fase bater, não renderiza nada (fallback)
   return null;
 }
 
