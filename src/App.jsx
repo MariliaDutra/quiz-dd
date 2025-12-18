@@ -772,11 +772,33 @@ if (phase === "teams") {
           marginTop: "1rem",
         }}
       >
-        <button onClick={() => setPhase("teams")} style={{ ... }}>
+        <button
+          onClick={() => setPhase("teams")}
+          style={{
+            padding: "0.8rem 1.6rem",
+            borderRadius: "999px",
+            background: "#111827",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
           Ver placar
         </button>
 
-        <button onClick={() => setPhase("numbers")} style={{ ... }}>
+        <button
+          onClick={() => setPhase("numbers")}
+          style={{
+            padding: "0.8rem 1.6rem",
+            borderRadius: "999px",
+            background: "#3b82f6",
+            color: "#fff",
+            border: "none",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
           Voltar para Números
         </button>
       </div>
@@ -791,83 +813,83 @@ if (phase === "teams") {
       </h2>
 
       {/* Texto da pergunta */}
-        <div style={{ marginTop: "2rem" }}>
-          <h3>{currentQuestion.question}</h3>
+      <div style={{ marginTop: "2rem" }}>
+        <h3>{currentQuestion.question}</h3>
 
-          {/* Alternativas A/B/C/D como botões */}
-          <div
-            style={{
-              marginTop: "2rem",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-            }}
+        {/* Alternativas A/B/C/D como botões */}
+        <div
+          style={{
+            marginTop: "2rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
+          <button
+            onClick={() => handleAnswerClick("A")}
+            style={getButtonStyle("A")}
           >
-            <button
-              onClick={() => handleAnswerClick("A")}
-              style={getButtonStyle("A")}
-            >
-              <strong>A:</strong> {currentQuestion.option_a}
-            </button>
-            <button
-              onClick={() => handleAnswerClick("B")}
-              style={getButtonStyle("B")}
-            >
-              <strong>B:</strong> {currentQuestion.option_b}
-            </button>
-            <button
-              onClick={() => handleAnswerClick("C")}
-              style={getButtonStyle("C")}
-            >
-              <strong>C:</strong> {currentQuestion.option_c}
-            </button>
-            <button
-              onClick={() => handleAnswerClick("D")}
-              style={getButtonStyle("D")}
-            >
-              <strong>D:</strong> {currentQuestion.option_d}
-            </button>
-          </div>
-
-          {/* Botão para marcar a pergunta como usada (quando acertou) */}
-          {correctAnswered && (
-            <button
-              onClick={() => markAsUsed(currentQuestion.id)}
-              style={{ marginTop: "2rem", background: "#4ade80" }}
-            >
-              Marcar como Usada
-            </button>
-          )}
-
-          {/* Botão para mostrar a resposta correta (se errou) */}
-          {selectedAnswers.length > 0 &&
-            !correctAnswered &&
-            !showCorrectAnswer && (
-              <button
-                onClick={() => setShowCorrectAnswer(true)}
-                style={{
-                  marginTop: "2rem",
-                  background: "#fbbf24",
-                  color: "#000",
-                }}
-              >
-                Mostrar Resposta
-              </button>
-            )}
-
-          {/* Depois de mostrar a resposta, também pode marcar como usada */}
-          {showCorrectAnswer && (
-            <button
-              onClick={() => markAsUsed(currentQuestion.id)}
-              style={{ marginTop: "2rem", background: "#4ade80" }}
-            >
-              Marcar como Usada
-            </button>
-          )}
+            <strong>A:</strong> {currentQuestion.option_a}
+          </button>
+          <button
+            onClick={() => handleAnswerClick("B")}
+            style={getButtonStyle("B")}
+          >
+            <strong>B:</strong> {currentQuestion.option_b}
+          </button>
+          <button
+            onClick={() => handleAnswerClick("C")}
+            style={getButtonStyle("C")}
+          >
+            <strong>C:</strong> {currentQuestion.option_c}
+          </button>
+          <button
+            onClick={() => handleAnswerClick("D")}
+            style={getButtonStyle("D")}
+          >
+            <strong>D:</strong> {currentQuestion.option_d}
+          </button>
         </div>
+
+        {/* Botão para marcar a pergunta como usada (quando acertou) */}
+        {correctAnswered && (
+          <button
+            onClick={() => markAsUsed(currentQuestion.id)}
+            style={{ marginTop: "2rem", background: "#4ade80" }}
+          >
+            Marcar como Usada
+          </button>
+        )}
+
+        {/* Botão para mostrar a resposta correta (se errou) */}
+        {selectedAnswers.length > 0 &&
+          !correctAnswered &&
+          !showCorrectAnswer && (
+            <button
+              onClick={() => setShowCorrectAnswer(true)}
+              style={{
+                marginTop: "2rem",
+                background: "#fbbf24",
+                color: "#000",
+              }}
+            >
+              Mostrar Resposta
+            </button>
+          )}
+
+        {/* Depois de mostrar a resposta, também pode marcar como usada */}
+        {showCorrectAnswer && (
+          <button
+            onClick={() => markAsUsed(currentQuestion.id)}
+            style={{ marginTop: "2rem", background: "#4ade80" }}
+          >
+            Marcar como Usada
+          </button>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   // Se nenhuma fase bater, não renderiza nada (fallback)
   return null;
