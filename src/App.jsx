@@ -376,6 +376,7 @@ if (phase === "teams") {
           fontSize: "1.4rem",
           fontWeight: "bold",
           textDecoration: "underline",
+          textShadow: "0 2px 4px rgba(0,0,0,0.8)",
         }}
       >
         Rodada atual: {currentRound}
