@@ -7,6 +7,8 @@ export const defaultProfile = {
   birthDate: "",
   validity: "",
   photo: null,
+  logoLeft: null,
+  logoRight: null,
 };
 
 export function loadProfile() {

@@ -35,6 +35,13 @@ export default function AdminScreen({ profile, onSave, onBack }) {
     update("photo", dataUrl);
   }
 
+  async function handleLogoChange(field, e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const dataUrl = await resizeImageFile(file, 240);
+    update(field, dataUrl);
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
     onSave(form);
@@ -81,6 +88,19 @@ export default function AdminScreen({ profile, onSave, onBack }) {
       </header>
 
       <form onSubmit={handleSubmit} style={{ padding: "1.5rem", maxWidth: 420, margin: "0 auto" }}>
+        <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+          <LogoUploader
+            label="Logo (esquerda)"
+            logo={form.logoLeft}
+            onChange={(e) => handleLogoChange("logoLeft", e)}
+          />
+          <LogoUploader
+            label="Logo (direita)"
+            logo={form.logoRight}
+            onChange={(e) => handleLogoChange("logoRight", e)}
+          />
+        </div>
+
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "1.5rem" }}>
           <div
             style={{
@@ -191,6 +211,48 @@ function Field({ label, children }) {
     <div style={{ marginBottom: "1rem" }}>
       <span style={labelStyle}>{label}</span>
       {children}
+    </div>
+  );
+}
+
+function LogoUploader({ label, logo, onChange }) {
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <div
+        style={{
+          width: "100%",
+          height: 64,
+          borderRadius: 12,
+          background: "#fff",
+          border: "1px dashed #9b6fd1",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: "0.5rem",
+          overflow: "hidden",
+        }}
+      >
+        {logo ? (
+          <img src={logo} alt={label} style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
+        ) : (
+          <span style={{ fontSize: "0.7rem", color: "#9b6fd1" }}>Sem logo</span>
+        )}
+      </div>
+      <label
+        style={{
+          fontSize: "0.75rem",
+          fontWeight: 600,
+          color: "#5a1f96",
+          cursor: "pointer",
+          padding: "0.3rem 0.8rem",
+          border: "1px solid #9b6fd1",
+          borderRadius: 999,
+          textAlign: "center",
+        }}
+      >
+        {label}
+        <input type="file" accept="image/*" onChange={onChange} style={{ display: "none" }} />
+      </label>
     </div>
   );
 }

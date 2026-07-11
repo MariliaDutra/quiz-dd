@@ -28,6 +28,11 @@ export default function IdCard({ profile }) {
 
       <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Logo logo={profile.logoLeft} align="left" />
+          <Logo logo={profile.logoRight} align="right" />
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: "0.75rem", letterSpacing: 1, opacity: 0.85 }}>
             CARTEIRA PESSOAL
           </span>
@@ -91,6 +96,45 @@ function Field({ label, value }) {
     <div>
       <div style={{ opacity: 0.7, fontSize: "0.68rem", letterSpacing: 0.5 }}>{label}</div>
       <div style={{ fontWeight: 600 }}>{value}</div>
+    </div>
+  );
+}
+
+function Logo({ logo, align }) {
+  return (
+    <div
+      style={{
+        width: 64,
+        height: 40,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: align === "left" ? "flex-start" : "flex-end",
+      }}
+    >
+      {logo ? (
+        <img
+          src={logo}
+          alt={align === "left" ? "Logo esquerda" : "Logo direita"}
+          style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+        />
+      ) : (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            border: "1px dashed rgba(255,255,255,0.35)",
+            borderRadius: 8,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "0.55rem",
+            opacity: 0.6,
+            letterSpacing: 0.5,
+          }}
+        >
+          LOGO
+        </div>
+      )}
     </div>
   );
 }
