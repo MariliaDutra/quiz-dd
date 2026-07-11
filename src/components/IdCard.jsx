@@ -15,47 +15,55 @@ export default function IdCard({ profile }) {
       style={{
         position: "relative",
         width: "100%",
-        maxWidth: 380,
-        borderRadius: 24,
+        maxWidth: 420,
+        borderRadius: 28,
         overflow: "hidden",
         background: "linear-gradient(135deg, #4b1f7a 0%, #7b2fb5 55%, #9b3fd1 100%)",
         boxShadow: "0 20px 40px rgba(60, 20, 100, 0.35)",
         color: "#fff",
-        padding: "1.5rem",
+        padding: "2rem 1.75rem",
       }}
     >
       <GraphicPattern />
 
-      <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+      <div
+        style={{
+          position: "relative",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.75rem",
+        }}
+      >
         <Logo logo={profile.logoLeft} />
 
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "1.25rem", alignItems: "center" }}>
           <Photo photo={profile.photo} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: "1.5rem", lineHeight: 1.2, wordBreak: "break-word" }}>
+            <h1 style={{ fontSize: "1.9rem", lineHeight: 1.2, wordBreak: "break-word" }}>
               {profile.name || "Seu Nome"}
             </h1>
-            <p style={{ fontSize: "0.8rem", opacity: 0.85, marginTop: 6 }}>
+            <p style={{ fontSize: "1rem", opacity: 0.85, marginTop: 8 }}>
               {formatDate(profile.birthDate)}
             </p>
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem", fontSize: "0.85rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem", fontSize: "1.05rem" }}>
           <Field label="Matrícula" value={profile.idNumber || "----"} />
           <Field label="Curso" value={profile.course || "Seu Curso"} />
           <Field label="Data de Validade" value={formatDate(profile.validity)} />
         </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: "0.25rem" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "auto" }}>
           <div
             style={{
               background: "rgba(255,255,255,0.9)",
-              borderRadius: 12,
-              padding: "0.6rem",
+              borderRadius: 16,
+              padding: "0.85rem",
             }}
           >
-            <QrCode text={qrText} size={100} />
+            <QrCode text={qrText} size={150} />
           </div>
         </div>
       </div>
@@ -66,7 +74,7 @@ export default function IdCard({ profile }) {
 function Field({ label, value }) {
   return (
     <div>
-      <div style={{ opacity: 0.7, fontSize: "0.68rem", letterSpacing: 0.5 }}>{label}</div>
+      <div style={{ opacity: 0.7, fontSize: "0.75rem", letterSpacing: 0.5 }}>{label}</div>
       <div style={{ fontWeight: 600 }}>{value}</div>
     </div>
   );
@@ -74,7 +82,7 @@ function Field({ label, value }) {
 
 function Logo({ logo }) {
   return (
-    <div style={{ width: 72, height: 44, display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
+    <div style={{ width: 88, height: 52, display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
       {logo ? (
         <img src={logo} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
       ) : (
@@ -103,9 +111,9 @@ function Photo({ photo }) {
   return (
     <div
       style={{
-        width: 96,
-        height: 96,
-        borderRadius: 18,
+        width: 116,
+        height: 116,
+        borderRadius: 20,
         overflow: "hidden",
         flexShrink: 0,
         background: "rgba(255,255,255,0.2)",
