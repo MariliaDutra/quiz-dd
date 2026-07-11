@@ -220,7 +220,9 @@ function LogoUploader({ label, logo, onChange }) {
           width: "100%",
           height: 64,
           borderRadius: 12,
-          background: "#fff",
+          backgroundImage:
+            "repeating-conic-gradient(#d8cbee 0% 25%, #fff 0% 50%)",
+          backgroundSize: "12px 12px",
           border: "1px dashed #9b6fd1",
           display: "flex",
           alignItems: "center",
