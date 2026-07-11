@@ -88,17 +88,14 @@ export default function AdminScreen({ profile, onSave, onBack }) {
       </header>
 
       <form onSubmit={handleSubmit} style={{ padding: "1.5rem", maxWidth: 420, margin: "0 auto" }}>
-        <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-          <LogoUploader
-            label="Logo (esquerda)"
-            logo={form.logoLeft}
-            onChange={(e) => handleLogoChange("logoLeft", e)}
-          />
-          <LogoUploader
-            label="Logo (direita)"
-            logo={form.logoRight}
-            onChange={(e) => handleLogoChange("logoRight", e)}
-          />
+        <div style={{ display: "flex", marginBottom: "1.5rem" }}>
+          <div style={{ width: 160 }}>
+            <LogoUploader
+              label="Logo"
+              logo={form.logoLeft}
+              onChange={(e) => handleLogoChange("logoLeft", e)}
+            />
+          </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "1.5rem" }}>

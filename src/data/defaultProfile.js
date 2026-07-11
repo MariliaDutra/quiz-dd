@@ -8,7 +8,6 @@ export const defaultProfile = {
   validity: "",
   photo: null,
   logoLeft: null,
-  logoRight: null,
 };
 
 export function loadProfile() {

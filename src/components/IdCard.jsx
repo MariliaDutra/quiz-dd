@@ -5,8 +5,8 @@ import { formatDate } from "../utils/formatDate";
 export default function IdCard({ profile }) {
   const qrText = [
     `Nome: ${profile.name}`,
+    `Matrícula: ${profile.idNumber}`,
     `Curso: ${profile.course}`,
-    `ID: ${profile.idNumber}`,
     `Validade: ${formatDate(profile.validity)}`,
   ].join("\n");
 
@@ -26,56 +26,28 @@ export default function IdCard({ profile }) {
     >
       <GraphicPattern />
 
-      <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: "1rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Logo logo={profile.logoLeft} align="left" />
-          <Logo logo={profile.logoRight} align="right" />
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: "0.75rem", letterSpacing: 1, opacity: 0.85 }}>
-            CARTEIRA PESSOAL
-          </span>
-          <span
-            style={{
-              fontSize: "0.7rem",
-              background: "rgba(255,255,255,0.18)",
-              padding: "0.2rem 0.6rem",
-              borderRadius: 999,
-            }}
-          >
-            ID {profile.idNumber || "----"}
-          </span>
-        </div>
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: "1.1rem" }}>
+        <Logo logo={profile.logoLeft} />
 
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           <Photo photo={profile.photo} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: "1.15rem", lineHeight: 1.25, wordBreak: "break-word" }}>
+            <h1 style={{ fontSize: "1.5rem", lineHeight: 1.2, wordBreak: "break-word" }}>
               {profile.name || "Seu Nome"}
             </h1>
-            <p style={{ fontSize: "0.85rem", opacity: 0.9, marginTop: 4 }}>
-              {profile.course || "Seu Curso"}
+            <p style={{ fontSize: "0.8rem", opacity: 0.85, marginTop: 6 }}>
+              {formatDate(profile.birthDate)}
             </p>
           </div>
         </div>
 
-        <div
-          style={{
-            background: "rgba(255,255,255,0.12)",
-            borderRadius: 14,
-            padding: "0.85rem 1rem",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            rowGap: "0.6rem",
-            fontSize: "0.8rem",
-          }}
-        >
-          <Field label="Nascimento" value={formatDate(profile.birthDate)} />
-          <Field label="Validade" value={formatDate(profile.validity)} />
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.7rem", fontSize: "0.85rem" }}>
+          <Field label="Matrícula" value={profile.idNumber || "----"} />
+          <Field label="Curso" value={profile.course || "Seu Curso"} />
+          <Field label="Data de Validade" value={formatDate(profile.validity)} />
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center", paddingTop: "0.25rem" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: "0.25rem" }}>
           <div
             style={{
               background: "rgba(255,255,255,0.9)",
@@ -83,7 +55,7 @@ export default function IdCard({ profile }) {
               padding: "0.6rem",
             }}
           >
-            <QrCode text={qrText} size={110} />
+            <QrCode text={qrText} size={100} />
           </div>
         </div>
       </div>
@@ -100,23 +72,11 @@ function Field({ label, value }) {
   );
 }
 
-function Logo({ logo, align }) {
+function Logo({ logo }) {
   return (
-    <div
-      style={{
-        width: 64,
-        height: 40,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: align === "left" ? "flex-start" : "flex-end",
-      }}
-    >
+    <div style={{ width: 72, height: 44, display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
       {logo ? (
-        <img
-          src={logo}
-          alt={align === "left" ? "Logo esquerda" : "Logo direita"}
-          style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-        />
+        <img src={logo} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
       ) : (
         <div
           style={{
@@ -143,9 +103,9 @@ function Photo({ photo }) {
   return (
     <div
       style={{
-        width: 72,
-        height: 72,
-        borderRadius: 16,
+        width: 96,
+        height: 96,
+        borderRadius: 18,
         overflow: "hidden",
         flexShrink: 0,
         background: "rgba(255,255,255,0.2)",
@@ -158,7 +118,7 @@ function Photo({ photo }) {
       {photo ? (
         <img src={photo} alt="Foto" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       ) : (
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
           <circle cx="12" cy="8" r="4" fill="rgba(255,255,255,0.8)" />
           <path
             d="M4 20c0-4 3.6-6 8-6s8 2 8 6"
