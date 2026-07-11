@@ -38,7 +38,7 @@ export default function AdminScreen({ profile, onSave, onBack }) {
   async function handleLogoChange(field, e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const dataUrl = await resizeImageFile(file, 500);
+    const dataUrl = await resizeImageFile(file, 240);
     update(field, dataUrl);
   }
 
@@ -218,7 +218,7 @@ function LogoUploader({ label, logo, onChange }) {
       <div
         style={{
           width: "100%",
-          height: 96,
+          height: 64,
           borderRadius: 12,
           background: "#fff",
           border: "1px dashed #9b6fd1",
