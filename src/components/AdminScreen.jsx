@@ -38,7 +38,7 @@ export default function AdminScreen({ profile, onSave, onBack }) {
   async function handleLogoChange(field, e) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const dataUrl = await resizeImageFile(file, 240);
+    const dataUrl = await resizeImageFile(file, 240, "png");
     update(field, dataUrl);
   }
 

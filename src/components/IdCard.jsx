@@ -43,7 +43,7 @@ export default function IdCard({ profile }) {
             <h1 style={{ fontSize: "1.5rem", lineHeight: 1.25, wordBreak: "break-word" }}>
               {profile.name || "Seu Nome"}
             </h1>
-            <p style={{ fontSize: "0.85rem", opacity: 0.85, marginTop: 6 }}>
+            <p style={{ fontSize: "1.1rem", opacity: 0.85, marginTop: 6 }}>
               {formatDate(profile.birthDate)}
             </p>
           </div>
@@ -55,7 +55,7 @@ export default function IdCard({ profile }) {
           <Field label="Data de Validade" value={formatDate(profile.validity)} />
         </div>
 
-        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginTop: "auto" }}>
           <div
             style={{
               background: "rgba(255,255,255,0.9)",
