@@ -40,16 +40,16 @@ export default function IdCard({ profile }) {
         <div style={{ display: "flex", gap: "1.25rem", alignItems: "center" }}>
           <Photo photo={profile.photo} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: "1.9rem", lineHeight: 1.2, wordBreak: "break-word" }}>
+            <h1 style={{ fontSize: "2.3rem", lineHeight: 1.2, wordBreak: "break-word" }}>
               {profile.name || "Seu Nome"}
             </h1>
-            <p style={{ fontSize: "1rem", opacity: 0.85, marginTop: 8 }}>
+            <p style={{ fontSize: "1.2rem", opacity: 0.85, marginTop: 8 }}>
               {formatDate(profile.birthDate)}
             </p>
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.1rem", fontSize: "1.05rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem", fontSize: "1.3rem" }}>
           <Field label="Matrícula" value={profile.idNumber || "----"} />
           <Field label="Curso" value={profile.course || "Seu Curso"} />
           <Field label="Data de Validade" value={formatDate(profile.validity)} />
@@ -74,7 +74,7 @@ export default function IdCard({ profile }) {
 function Field({ label, value }) {
   return (
     <div>
-      <div style={{ opacity: 0.7, fontSize: "0.75rem", letterSpacing: 0.5 }}>{label}</div>
+      <div style={{ opacity: 0.7, fontSize: "0.9rem", letterSpacing: 0.5 }}>{label}</div>
       <div style={{ fontWeight: 600 }}>{value}</div>
     </div>
   );
