@@ -82,7 +82,7 @@ function Field({ label, value }) {
 
 function Logo({ logo }) {
   return (
-    <div style={{ width: 88, height: 52, display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
+    <div style={{ width: 160, height: 96, display: "flex", alignItems: "center", justifyContent: "flex-start" }}>
       {logo ? (
         <img src={logo} alt="Logo" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
       ) : (
